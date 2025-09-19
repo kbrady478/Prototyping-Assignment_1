@@ -57,6 +57,20 @@ public class TurnOrder : MonoBehaviour
             IsPlayer = isPlayer;
             initialstart = initialStart;
         }
+
+        public bool IsDead()
+        {
+            if (CurrentHealth <= 0)
+            {
+                Debug.Log(Stats.charName + " is dead");
+            }
+        }
+
+        public void TakeDamage(int damage)
+        {
+            if (IsDead()) return;
+            
+        }
     }
 #endregion
 
