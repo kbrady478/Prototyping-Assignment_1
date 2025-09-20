@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc770c8b96182c144b618f1895c95057, type: 3}
   m_Name: Prince
   m_EditorClassIdentifier: Assembly-CSharp::CharactersStats
-  charName: 
-  Vigor: 0
-  Endurance: 0
-  Critical: 0
-  Agility: 0
+  charName: Prince
+  Vigor: 90
+  Strength: 5
+  Endurance: 3
+  Critical: 3
+  Agility: 2
