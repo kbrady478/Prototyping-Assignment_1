@@ -204,7 +204,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1179461726}
         m_TargetAssemblyTypeName: TurnOrder, Assembly-CSharp
-        m_MethodName: PlayerTurn
+        m_MethodName: PlayerTurnInput
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -473,7 +473,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1179461726}
         m_TargetAssemblyTypeName: TurnOrder, Assembly-CSharp
-        m_MethodName: PlayerTurn
+        m_MethodName: PlayerTurnInput
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1588,7 +1588,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1179461726}
         m_TargetAssemblyTypeName: TurnOrder, Assembly-CSharp
-        m_MethodName: PlayerTurn
+        m_MethodName: PlayerTurnInput
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

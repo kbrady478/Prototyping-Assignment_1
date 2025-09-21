@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Gunslinger
   m_EditorClassIdentifier: Assembly-CSharp::CharactersStats
   charName: Gunslinger
-  Vigor: 100
-  Strength: 20
-  Endurance: 5
-  Critical: 2
-  Agility: 3
+  Vigor: 120
+  Strength: 10
+  Endurance: 20
+  Critical: 12
+  Agility: 0
