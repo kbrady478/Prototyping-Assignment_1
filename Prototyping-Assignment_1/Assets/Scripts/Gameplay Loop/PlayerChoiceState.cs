@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 // ====== Player Choice State ======
@@ -13,6 +14,9 @@ public class PlayerChoiceState : CoreGameplayLoop
     public override void Enter()
     {
         Debug.Log("===== Player Choice Phase =====" );
+
+        CoreGameState.players = CoreGameState.players.OrderByDescending(player => player.Initiative).ToList();
+
         currentPlayerIndex = 0;
 
         NextAlivePlayer();

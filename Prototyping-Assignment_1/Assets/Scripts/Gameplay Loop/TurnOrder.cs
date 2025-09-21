@@ -9,13 +9,12 @@ public class TurnOrder : MonoBehaviour
 {
     #region Unit / Character
     // ====== UNIT / CHARACTER =======
-    // Track each unit's stats, position, and status (Player/Enemy)
+    // Here Should track said units data (character stats, Positions, state Player || Enemy )
+    // Remember Dead positions, IF Miss.... return otherwise do said actions
     public enum Positions { Front, Middle, Back }
 
     public class Unit
     {
-        // Here Should track said units data (character stats, Positions, state Player || Enemy )
-        // Remember Dead positions, IF Miss.... return otherwise do said actions
 
         public CharactersStats Stats;
         public int CurrentVigor;
@@ -68,8 +67,9 @@ public class TurnOrder : MonoBehaviour
     #region Unit References
     // ====== Scriptable Objects ======
     // Grab from the instance variable from the SO scripts
-    public CharactersStats Mage, Gunslinger, Prince, Goblin;
+    public CharactersStats Mage, Gunslinger, Prince, Goblin, Goblin2, Goblin3;
 
+    // Lists
     [HideInInspector] public List<Unit> players = new List<Unit>();
     [HideInInspector] public List<Unit> enemies = new List<Unit>();
     [HideInInspector] public List<Unit> initiativeOrderList = new List<Unit>();
@@ -97,8 +97,8 @@ public class TurnOrder : MonoBehaviour
 
         // Enemy Side
         enemies.Add(new Unit(Goblin, Positions.Front, false));
-        enemies.Add(new Unit(Goblin, Positions.Middle, false));
-        enemies.Add(new Unit(Goblin, Positions.Back, false));
+        enemies.Add(new Unit(Goblin2, Positions.Middle, false));
+        enemies.Add(new Unit(Goblin3, Positions.Back, false));
 
         // Shows the current what happens
         PreviewTurn();
@@ -143,10 +143,10 @@ public class TurnOrder : MonoBehaviour
             unit.Initiative = Mathf.Max(roll + Mathf.RoundToInt(unit.Stats.Agility));
         }
 
-        initiativeOrderList = initiativeOrderList.OrderByDescending(u => u.Initiative).ToList();
+        initiativeOrderList = initiativeOrderList.OrderByDescending(unit => unit.Initiative).ToList();
 
         string turnOrderDisplay = string.Join(" -> ",
-            initiativeOrderList.Select(u => u.Stats.charName + (u.IsDead() ? "(Dead)" : "")));
+            initiativeOrderList.Select(unit => unit.Stats.charName + (unit.IsDead() ? "(Dead)" : "")));
         Debug.Log(turnOrderDisplay);
     }
     #endregion

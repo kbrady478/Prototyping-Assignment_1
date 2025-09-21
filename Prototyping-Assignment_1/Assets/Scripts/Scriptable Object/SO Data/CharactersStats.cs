@@ -20,9 +20,6 @@ public class CharactersStats : ScriptableObject
     [Tooltip("Defense points")]
     public int Endurance;
 
-    [Tooltip("Multiplier per hit value")]
-    public float Critical;
-
     [Tooltip("Speed points")]
     public float Agility;
 }   

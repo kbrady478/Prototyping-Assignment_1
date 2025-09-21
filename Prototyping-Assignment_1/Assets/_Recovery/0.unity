@@ -1135,9 +1135,7 @@ MonoBehaviour:
   Mage: {fileID: 11400000, guid: 98ccb9525f3155a4485ca9ded8aad4ca, type: 2}
   Gunslinger: {fileID: 11400000, guid: d667bafd951afa748b0cee24e6e59f50, type: 2}
   Prince: {fileID: 11400000, guid: 924c95312e6438f46ba4c529fb4df482, type: 2}
-  Goblin: {fileID: 11400000, guid: c6924b3145744b746a2f9ebda216c0c1, type: 2}
-  Goblin2: {fileID: 11400000, guid: d5c8d1f1d5ba44841b778663af7e1ae0, type: 2}
-  Goblin3: {fileID: 11400000, guid: b72ba710158d7cd419afa878a7751bb2, type: 2}
+  Goblin: {fileID: 11400000, guid: b72ba710158d7cd419afa878a7751bb2, type: 2}
 --- !u!4 &1179461727
 Transform:
   m_ObjectHideFlags: 0
