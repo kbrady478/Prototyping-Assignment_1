@@ -3,40 +3,14 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Skill", menuName = "Character/Skill")]
 public class SkillData : ScriptableObject
 {
-    [Header("Ability Name")]
     public string skillName;
+    public int damage;
+    public bool isHeal;
+    public bool isBuff;
+    public float hitChance = 0.8f;
 
-    [Header("Usable Position")]
-    public bool canUsefront;
-    public bool canUseMiddle;
-    public bool canUseBack;
-    public bool canUseAny;
+    public TurnOrder.Positions[] targetPositions;
 
-    [Header("Can Target")]
-    public bool canTargetfront;
-    public bool canTargetMiddle;
-    public bool canTargetBack;
-    public bool canTargetAny;
-
-    [Header("Damage")]
-    public int skillDamage;
-
-    [Header("Critical Chance")]
-    public float critChance;
-
-    [Header("Movement")]
-    public int moveFoward;
-    public int moveBackward;
-
-    [Header("Can Miss")]
-    public bool canMiss;
-
-    [Header("Special Rule")]
-    public bool canHeal;
-    public bool healSelf;
-    public bool parry;
-    public bool halfDamageSelf;
-    public bool halfDamage;
-    
-    
+    public int MoveSelf;
+    public int MoveTarget;
 }
