@@ -86,6 +86,10 @@ public class ActionPhaseState : CoreGameplayLoop
             int newIndex = (int)unit.CurrentPosition + action.ChosenAbility.MoveSelf;
             newIndex = Mathf.Clamp(newIndex, 0, 2);
             unit.CurrentPosition = (TurnOrder.Positions)newIndex;
+
+            // Resolve conflicts
+            unit.CurrentPosition = CoreGameState.ResolveOccupiedPosition(unit);
+
             if (action.ChosenAbility.MoveSelf != 0)
                 Debug.Log(unit.Stats.charName + " moves to " + unit.CurrentPosition);
 
@@ -151,8 +155,13 @@ public class ActionPhaseState : CoreGameplayLoop
                     int targetIndex = (int)target.CurrentPosition + action.ChosenAbility.MoveTarget;
                     targetIndex = Mathf.Clamp(targetIndex, 0, 2);
                     target.CurrentPosition = (TurnOrder.Positions)targetIndex;
+
+                    // Resolve conflicts for target
+                    target.CurrentPosition = CoreGameState.ResolveOccupiedPosition(target);
+
                     if (action.ChosenAbility.MoveTarget != 0)
                         Debug.Log(target.Stats.charName + " is moved to " + target.CurrentPosition);
+
 
                     yield return new WaitForSeconds(1.5f);
                 }

@@ -234,6 +234,29 @@ public class TurnOrder : MonoBehaviour
         }
     }
 
+    public Positions ResolveOccupiedPosition(Unit unit)
+    {
+        if (!initiativeOrderList.Any(u => u != unit && !u.IsDead() && u.CurrentPosition == unit.CurrentPosition))
+            return unit.CurrentPosition; // no conflict
+
+        // Try nearest positions
+        for (int offset = 1; offset <= 2; offset++)
+        {
+            int forward = (int)unit.CurrentPosition + offset;
+            int backward = (int)unit.CurrentPosition - offset;
+
+            if (forward <= 2 && !initiativeOrderList.Any(u => !u.IsDead() && u.CurrentPosition == (Positions)forward))
+                return (Positions)forward;
+
+            if (backward >= 0 && !initiativeOrderList.Any(u => !u.IsDead() && u.CurrentPosition == (Positions)backward))
+                return (Positions)backward;
+        }
+
+        // fallback, stay in original
+        return unit.CurrentPosition;
+    }
+
+
     private Positions FindNearestFreePosition(Positions original)
     {
         // Positions are 0=Front, 1=Middle, 2=Back
