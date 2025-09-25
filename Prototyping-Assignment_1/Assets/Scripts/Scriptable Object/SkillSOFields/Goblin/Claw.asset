@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7589ba6990a6e924dbb5a13de4575c69, type: 3}
   m_Name: Claw
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillName: 
-  damage: 0
+  skillName: Claw
+  damage: 20
   isHeal: 0
   isBuff: 0
-  hitChance: 0.8
-  targetPositions: 
-  relativeMove: 0
+  hitChance: 1
+  targetPositions: 00000000
+  MoveSelf: -1
+  MoveTarget: 0

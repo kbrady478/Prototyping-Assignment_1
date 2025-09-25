@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7589ba6990a6e924dbb5a13de4575c69, type: 3}
-  m_Name: New Skill 6
+  m_Name: Scurry
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillName: 
+  skillName: Scurry
   damage: 0
   isHeal: 0
   isBuff: 0
-  hitChance: 0.8
+  hitChance: 1
   targetPositions: 00000000
-  moveToPosition: 1
+  MoveSelf: 0
+  MoveTarget: 2

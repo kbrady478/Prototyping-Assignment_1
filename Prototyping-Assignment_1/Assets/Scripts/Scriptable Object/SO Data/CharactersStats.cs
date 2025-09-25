@@ -22,5 +22,7 @@ public class CharactersStats : ScriptableObject
 
     [Tooltip("Speed points")]
     public float Agility;
+
+    public SkillData[] skills;
 }   
     

@@ -16,5 +16,8 @@ MonoBehaviour:
   Vigor: 120
   Strength: 10
   Endurance: 20
-  Critical: 12
   Agility: 0
+  skills:
+  - {fileID: 11400000, guid: e818c2fbeef9a2447add2d652fccd0bf, type: 2}
+  - {fileID: 11400000, guid: 577b541eefa964f46be8391c054db5da, type: 2}
+  - {fileID: 11400000, guid: b46a643351c7eef419c05f4b3ae62ab8, type: 2}

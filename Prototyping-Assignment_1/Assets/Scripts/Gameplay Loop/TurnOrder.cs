@@ -1,11 +1,11 @@
-using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public class TurnOrder : MonoBehaviour
 {
     #region Unit / Character
-    public enum Positions { Front, Middle, Back }
+    public enum Positions { Front = 0, Middle = 1, Back = 2 }
 
     public class Unit
     {
@@ -15,15 +15,16 @@ public class TurnOrder : MonoBehaviour
         public bool IsPlayer;
         public int Initiative;
 
-        public List<SkillData> abilities = new List<SkillData>();
+        // For defensive skills
+        public bool HasParry = false;
+        public bool HasGuard = false;
 
-        public Unit(CharactersStats stats, Positions pos, bool isPlayer, List<SkillData> unitAbilities)
+        public Unit(CharactersStats stats, Positions pos, bool isPlayer)
         {
             Stats = stats;
             CurrentVigor = stats.Vigor;
             CurrentPosition = pos;
             IsPlayer = isPlayer;
-            abilities = unitAbilities;
         }
 
         public bool IsDead() => CurrentVigor <= 0;
@@ -33,7 +34,7 @@ public class TurnOrder : MonoBehaviour
             if (IsDead()) return;
             int actualDamage = Mathf.Max(damage - Stats.Endurance, 0);
             CurrentVigor -= actualDamage;
-            Debug.Log(Stats.charName + " took -" + actualDamage + " damage. Vigor =" + CurrentVigor);
+            Debug.Log(Stats.charName + " took " + actualDamage + " damage. Vigor=" + CurrentVigor);
         }
     }
     #endregion
@@ -44,29 +45,21 @@ public class TurnOrder : MonoBehaviour
     public class PlayerActionType
     {
         public PlayerActionTypeEnum ActionType;
+        public Unit User;
         public SkillData ChosenAbility;
-        public Positions TargetPos;
-        public Unit Actor; // <-- store who performs this action
 
-        public PlayerActionType(SkillData ability, TurnOrder.Positions target, TurnOrder.Unit actor)
+        public PlayerActionType(Unit user, SkillData ability)
         {
-            ActionType = PlayerActionTypeEnum.Ability;
+            User = user;
             ChosenAbility = ability;
-            TargetPos = target;
-            Actor = actor;
-        }
-
-        public PlayerActionType(TurnOrder.Positions moveTo, TurnOrder.Unit actor)
-        {
-            ActionType = PlayerActionTypeEnum.Move;
-            TargetPos = moveTo;
-            Actor = actor;
+            ActionType = PlayerActionTypeEnum.Ability;
         }
     }
-
     #endregion
 
     #region Unit References
+    public CharactersStats Mage, Gunslinger, Prince, Goblin, Goblin2, Goblin3;
+
     [HideInInspector] public List<Unit> players = new List<Unit>();
     [HideInInspector] public List<Unit> enemies = new List<Unit>();
     [HideInInspector] public List<Unit> initiativeOrderList = new List<Unit>();
@@ -79,29 +72,42 @@ public class TurnOrder : MonoBehaviour
     private CoreGameplayLoop currentState;
     #endregion
 
+    #region Start / Update
     private void Start()
     {
-        // Example: Add units here (assign SOs from Inspector)
-        // players.Add(new Unit(MageStats, Positions.Back, true, new List<SkillData>{ FireballSO, RejuvenateSO, ArcaneBlastSO }));
-        // enemies.Add(new Unit(GoblinStats, Positions.Front, false, new List<SkillData>{ SlashSO, StabSO, TauntSO }));
+        // Player Side
+        players.Add(new Unit(Mage, Positions.Back, true));
+        players.Add(new Unit(Gunslinger, Positions.Middle, true));
+        players.Add(new Unit(Prince, Positions.Front, true));
+
+        // Enemy Side
+        enemies.Add(new Unit(Goblin, Positions.Front, false));
+        enemies.Add(new Unit(Goblin2, Positions.Middle, false));
+        enemies.Add(new Unit(Goblin3, Positions.Back, false));
 
         PreviewTurn();
+
         currentState = new EnemyChoiceState(this);
         currentState.Enter();
     }
 
     public void Update() => currentState.Update();
+    #endregion
 
+    #region FSM Control
     public void ChangeState(CoreGameplayLoop newState)
     {
         currentState.Exit();
         currentState = newState;
         currentState.Enter();
     }
+    #endregion
 
+    #region Preview Turn
     public void PreviewTurn()
     {
         Debug.Log("===== Preview turn =====");
+
         initiativeOrderList.Clear();
         initiativeOrderList.AddRange(players);
         initiativeOrderList.AddRange(enemies);
@@ -113,14 +119,10 @@ public class TurnOrder : MonoBehaviour
         }
 
         initiativeOrderList = initiativeOrderList.OrderByDescending(u => u.Initiative).ToList();
-        string turnOrderDisplay = string.Join(" -> ",
-            initiativeOrderList.Select(unit => unit.Stats.charName + (unit.IsDead() ? "(Dead)" : "")));
-        Debug.Log(turnOrderDisplay);
-    }
 
-    public void PlayerTurnInput(int targetPosition, SkillData chosenSkill, Unit player)
-    {
-        if (currentState is PlayerChoiceState playerState)
-            playerState.PlayerUseSkill(player, chosenSkill);
+        string display = string.Join(" -> ",
+            initiativeOrderList.Select(u => u.Stats.charName + (u.IsDead() ? "(Dead)" : "")));
+        Debug.Log(display);
     }
+    #endregion
 }

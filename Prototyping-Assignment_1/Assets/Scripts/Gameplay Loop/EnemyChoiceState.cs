@@ -11,22 +11,24 @@ public class EnemyChoiceState : CoreGameplayLoop
         Debug.Log("===== Enemy Choice Phase =====");
         CoreGameState.enemyActionsQueue.Clear();
 
+        List<TurnOrder.Unit> alivePlayers = CoreGameState.players.Where(p => !p.IsDead()).ToList();
+        if (alivePlayers.Count == 0) return;
+
         foreach (var enemy in CoreGameState.enemies)
         {
             if (enemy.IsDead()) continue;
 
-            // Pick random skill
-            SkillData chosenSkill = enemy.abilities[Random.Range(0, enemy.abilities.Count)];
+            SkillData[] enemySkills = enemy.Stats.skills;
+            SkillData chosenSkill = enemySkills[Random.Range(0, enemySkills.Length)];
 
-            // Pick target position from skill
-            TurnOrder.Positions targetPos = chosenSkill.targetPositions[Random.Range(0, chosenSkill.targetPositions.Length)];
+            CoreGameState.enemyActionsQueue.Enqueue(
+                new TurnOrder.PlayerActionType(enemy, chosenSkill)
+            );
 
-            CoreGameState.enemyActionsQueue.Enqueue(new TurnOrder.PlayerActionType(chosenSkill, targetPos, enemy));
-
-            Debug.Log(enemy.Stats.charName + " will use " + chosenSkill.skillName + " on " + targetPos);
+            Debug.Log(enemy.Stats.charName + " will use " + chosenSkill.skillName);
         }
 
-        CoreGameState.ChangeState(new PlayerChoiceState(CoreGameState));
+        CoreGameState.ChangeState(new ActionPhaseState(CoreGameState));
     }
 
     public override void Update() { }
