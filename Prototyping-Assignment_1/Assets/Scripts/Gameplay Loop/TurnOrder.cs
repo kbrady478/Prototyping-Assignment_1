@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
+using TMPro;
+using UnityEditor.Timeline;
 using UnityEngine;
 
 public class TurnOrder : MonoBehaviour
@@ -193,10 +196,38 @@ public class TurnOrder : MonoBehaviour
 
     #endregion
 
+    public GameObject UserPrefabText;
+    public Transform UnitPanel;
+    
     public IEnumerator DisplayAllUnitStatus(float displayTime = 2f)
     {
-        Debug.Log("===== Unit Status =====");
-
+       Debug.Log("===== Unit Status =====");
+        /* 
+        foreach (Transform UserPrefabText in UnitPanel)
+        {
+            Destroy(UserPrefabText.gameObject);
+        }
+        foreach (var unit in players.Concat(enemies))
+        {
+            Debug.Log("Working");
+            
+            var item = Instantiate(UserPrefabText, UnitPanel);
+            item.SetActive(true);
+            
+            var nameText = item.GetComponent<TextMeshProUGUI>();
+            var hpTxt = item.GetComponent<TextMeshProUGUI>(); 
+            
+            nameText.text = unit.Stats.charName;
+            hpTxt.text = "HP:" + unit.CurrentVigor;
+            
+           
+        }
+*/
+    
+        
+        
+        
+        
         foreach (var unit in initiativeOrderList)
         {
             string status = unit.IsDead()

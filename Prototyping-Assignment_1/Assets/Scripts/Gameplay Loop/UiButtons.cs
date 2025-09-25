@@ -31,6 +31,8 @@ public class UiButton : MonoBehaviour
             return;
         }
 
+        RewriteButton(player);
+        
         Debug.Log("Player turn start: " + player.Stats.charName);
 
         // Assign button actions for current player
@@ -55,4 +57,23 @@ public class UiButton : MonoBehaviour
         // Move to next alive player's turn
         turnOrder.NextAlivePlayerTurn();
     }
-}
+
+    private void RewriteButton(TurnOrder.Unit player)
+    {
+        foreach (var unit in )
+        {
+            if (TurnOrder.IsPlayer)
+            {
+                // change gameobjct to text
+                // add var gameobject panel extra....
+            }
+            
+            // change this lines to button inpt 
+            string status = unit.IsDead() ? "(Dead)" : unit.CurrentVigor + "/" + unit.Stats.Vigor;
+
+            string position = unit.CurrentPosition.ToString();
+
+            Debug.Log(unit.Stats.charName + ": " + status + " | Position: " + position);
+        }
+    
+    }
