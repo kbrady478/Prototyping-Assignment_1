@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -81,7 +82,6 @@ public class TurnOrder : MonoBehaviour
     #region FSM
     private CoreGameplayLoop currentState;
     public CoreGameplayLoop CurrentState => currentState;
-
     #endregion
 
     #region Start / Update
@@ -97,7 +97,7 @@ public class TurnOrder : MonoBehaviour
         enemies.Add(new Unit(Goblin2, Positions.Middle, false));
         enemies.Add(new Unit(Goblin3, Positions.Back, false));
 
-        PreviewTurn();
+        StartCoroutine(PreviewTurnRoutine());
 
         currentState = new EnemyChoiceState(this);
         currentState.Enter();
@@ -137,12 +137,39 @@ public class TurnOrder : MonoBehaviour
         Debug.Log(display);
     }
 
-    private int currentPlayerIndex = -1; // tracks which player's turn it is
+    public IEnumerator PreviewTurnRoutine()
+    {
+        Debug.Log("===== Preview turn =====");
 
-    public void NextAlivePlayerTurn()
+        initiativeOrderList.Clear();
+        initiativeOrderList.AddRange(players);
+        initiativeOrderList.AddRange(enemies);
+
+        foreach (var unit in initiativeOrderList)
+        {
+            int roll = Random.Range(0, 20);
+            unit.Initiative = Mathf.Max(roll + Mathf.RoundToInt(unit.Stats.Agility), 0); 
+        }
+
+        initiativeOrderList = initiativeOrderList.OrderByDescending(u => u.Initiative).ToList();
+
+        string display = string.Join(" -> ",
+            initiativeOrderList.Select(u => u.Stats.charName + (u.IsDead() ? "(Dead)" : "")));
+        Debug.Log(display);
+
+        yield return null; // allow coroutine to yield
+    }
+
+    #endregion
+
+    #region Player Turns
+    
+    private int currentPlayerIndex = -1; 
+
+    public IEnumerator NextAlivePlayerTurn()
     {
         if (players.All(p => p.IsDead()))
-            return; // no alive players
+            yield break;
 
         int totalPlayers = initiativeOrderList.Count;
         int iterations = 0;
@@ -153,14 +180,76 @@ public class TurnOrder : MonoBehaviour
             iterations++;
 
             var candidate = initiativeOrderList[currentPlayerIndex];
-            // Only consider alive players
             if (candidate.IsPlayer && !candidate.IsDead())
             {
+                Debug.Log("It's " + candidate.Stats.charName + "'s turn!");
+                yield return new WaitForSeconds(1.5f);
                 OnPlayerTurnStart?.Invoke(candidate);
-                return;
+                yield break;
             }
 
-        } while (iterations <= totalPlayers); // safety: avoid infinite loops
+        } while (iterations <= totalPlayers);
     }
+
     #endregion
+
+    public IEnumerator DisplayAllUnitStatus(float displayTime = 2f)
+    {
+        Debug.Log("===== Unit Status =====");
+
+        foreach (var unit in initiativeOrderList)
+        {
+            string status = unit.IsDead()
+                ? "(Dead)"
+                : unit.CurrentVigor + "/" + unit.Stats.Vigor;
+
+            string position = unit.CurrentPosition.ToString();
+
+            Debug.Log(unit.Stats.charName + ": " + status + " | Position: " + position);
+        }
+
+        yield return new WaitForSeconds(displayTime); 
+    }
+
+    public void ResolvePositionConflicts()
+    {
+        var groups = initiativeOrderList
+            .Where(u => !u.IsDead())
+            .GroupBy(u => u.CurrentPosition);
+
+        foreach (var group in groups)
+        {
+            var units = group.ToList();
+            if (units.Count <= 1) continue; // no conflict
+
+            Debug.Log($"Conflict at {group.Key}: {string.Join(", ", units.Select(u => u.Stats.charName))}");
+
+            for (int i = 1; i < units.Count; i++)
+            {
+                var unit = units[i];
+                TurnOrder.Positions newPos = FindNearestFreePosition(unit.CurrentPosition);
+                Debug.Log(unit.Stats.charName + " moves to " + newPos + " to resolve conflict");
+                unit.CurrentPosition = newPos;
+            }
+        }
+    }
+
+    private Positions FindNearestFreePosition(Positions original)
+    {
+        // Positions are 0=Front, 1=Middle, 2=Back
+        for (int offset = 1; offset <= 2; offset++)
+        {
+            int forward = (int)original + offset;
+            int backward = (int)original - offset;
+
+            if (forward <= 2 && !initiativeOrderList.Any(u => !u.IsDead() && u.CurrentPosition == (Positions)forward))
+                return (Positions)forward;
+
+            if (backward >= 0 && !initiativeOrderList.Any(u => !u.IsDead() && u.CurrentPosition == (Positions)backward))
+                return (Positions)backward;
+        }
+
+        return original;
+    }
+
 }
