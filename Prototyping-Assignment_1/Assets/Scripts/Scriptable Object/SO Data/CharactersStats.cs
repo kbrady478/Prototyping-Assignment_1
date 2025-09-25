@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using JetBrains.Annotations;
 
 
 // Base data for all characters
@@ -13,13 +14,15 @@ public class CharactersStats : ScriptableObject
     [Tooltip("Health")]
     public int Vigor;
 
-    [Tooltip("Defense")]
+    [Tooltip("Damage per hit")]
+    public int Strength;
+
+    [Tooltip("Defense points")]
     public int Endurance;
 
-    [Tooltip("Multiplier per hit value")]
-    public float Critical;
-
-    [Tooltip("Speed")]
+    [Tooltip("Speed points")]
     public float Agility;
+
+    public SkillData[] skills;
 }   
     

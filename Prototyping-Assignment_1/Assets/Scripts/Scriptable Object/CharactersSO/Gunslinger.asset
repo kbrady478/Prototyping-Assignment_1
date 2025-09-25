@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc770c8b96182c144b618f1895c95057, type: 3}
+  m_Name: Gunslinger
+  m_EditorClassIdentifier: Assembly-CSharp::CharactersStats
+  charName: Gunslinger
+  Vigor: 120
+  Strength: 10
+  Endurance: 20
+  Agility: 0
+  skills:
+  - {fileID: 11400000, guid: e818c2fbeef9a2447add2d652fccd0bf, type: 2}
+  - {fileID: 11400000, guid: 577b541eefa964f46be8391c054db5da, type: 2}
+  - {fileID: 11400000, guid: b46a643351c7eef419c05f4b3ae62ab8, type: 2}

@@ -10,10 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cc770c8b96182c144b618f1895c95057, type: 3}
-  m_Name: Goblin
+  m_Name: Goblin 1
   m_EditorClassIdentifier: Assembly-CSharp::CharactersStats
-  charName: 
-  Vigor: 0
+  charName: Goblin 1
+  Vigor: 100
+  Strength: 20
   Endurance: 0
-  Critical: 0
-  Agility: 0
+  Agility: 1
+  skills:
+  - {fileID: 11400000, guid: cae5bcc892262fe43afa3a14a707009a, type: 2}
+  - {fileID: 11400000, guid: a643a53ef5de9bc4cbd1bed0022b9dc9, type: 2}
+  - {fileID: 11400000, guid: 30008a41b556c3945a4d54a6c5f482a9, type: 2}

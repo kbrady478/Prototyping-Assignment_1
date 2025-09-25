@@ -119,54 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &31670976
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 31670978}
-  - component: {fileID: 31670977}
-  m_Layer: 0
-  m_Name: Ui Buttons
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &31670977
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 31670976}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8904e2218a9a84c498fbde5bf3fca364, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UiButton
-  turnOrder: {fileID: 1179461726}
-  skill1Button: {fileID: 427008244}
-  skill2Button: {fileID: 277874820}
-  skill3Button: {fileID: 1816765184}
---- !u!4 &31670978
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 31670976}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -541.7073, y: 142.74274, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &277874818
 GameObject:
   m_ObjectHideFlags: 0
@@ -180,7 +132,7 @@ GameObject:
   - component: {fileID: 277874821}
   - component: {fileID: 277874820}
   m_Layer: 5
-  m_Name: Skill2Button
+  m_Name: Gob middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -249,7 +201,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 277874821}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1179461726}
+        m_TargetAssemblyTypeName: TurnOrder, Assembly-CSharp
+        m_MethodName: PlayerTurnInput
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &277874821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -322,7 +286,7 @@ RectTransform:
   - {fileID: 427008243}
   - {fileID: 277874819}
   - {fileID: 1816765183}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 293906759}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -420,7 +384,8 @@ Transform:
   m_LocalPosition: {x: 0.77814, y: -0.36492, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 286616855}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &427008242
@@ -436,7 +401,7 @@ GameObject:
   - component: {fileID: 427008245}
   - component: {fileID: 427008244}
   m_Layer: 5
-  m_Name: Skill1Button
+  m_Name: Gob Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -505,7 +470,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 427008245}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1179461726}
+        m_TargetAssemblyTypeName: TurnOrder, Assembly-CSharp
+        m_MethodName: PlayerTurnInput
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &427008245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1158,9 +1135,7 @@ MonoBehaviour:
   Mage: {fileID: 11400000, guid: 98ccb9525f3155a4485ca9ded8aad4ca, type: 2}
   Gunslinger: {fileID: 11400000, guid: d667bafd951afa748b0cee24e6e59f50, type: 2}
   Prince: {fileID: 11400000, guid: 924c95312e6438f46ba4c529fb4df482, type: 2}
-  Goblin: {fileID: 11400000, guid: c6924b3145744b746a2f9ebda216c0c1, type: 2}
-  Goblin2: {fileID: 11400000, guid: d5c8d1f1d5ba44841b778663af7e1ae0, type: 2}
-  Goblin3: {fileID: 11400000, guid: b72ba710158d7cd419afa878a7751bb2, type: 2}
+  Goblin: {fileID: 11400000, guid: b72ba710158d7cd419afa878a7751bb2, type: 2}
 --- !u!4 &1179461727
 Transform:
   m_ObjectHideFlags: 0
@@ -1541,7 +1516,7 @@ GameObject:
   - component: {fileID: 1816765185}
   - component: {fileID: 1816765184}
   m_Layer: 5
-  m_Name: Skill3Button
+  m_Name: Gob Back
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1610,7 +1585,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1816765185}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1179461726}
+        m_TargetAssemblyTypeName: TurnOrder, Assembly-CSharp
+        m_MethodName: PlayerTurnInput
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1816765185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1655,8 +1642,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 832049764}
   - {fileID: 1443130973}
-  - {fileID: 286616855}
   - {fileID: 293906759}
   - {fileID: 909947602}
   - {fileID: 1179461727}
-  - {fileID: 31670978}
