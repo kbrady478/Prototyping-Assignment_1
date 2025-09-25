@@ -55,7 +55,7 @@ public class ActionPhaseState : CoreGameplayLoop
             if (action.ChosenAbility.MoveSelf != 0)
                 Debug.Log(unit.Stats.charName + " moves to " + unit.CurrentPosition);
 
-            // Apply skill to targets
+            
             foreach (var targetPos in action.ChosenAbility.targetPositions)
             {
                 var unitsInPos = targets.Where(u => u.CurrentPosition == targetPos && !u.IsDead()).ToList();

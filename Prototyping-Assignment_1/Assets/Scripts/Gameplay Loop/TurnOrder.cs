@@ -4,6 +4,16 @@ using UnityEngine;
 
 public class TurnOrder : MonoBehaviour
 {
+    #region UI
+    public delegate void PlayerTurnStartHandler(Unit player);
+    public event PlayerTurnStartHandler OnPlayerTurnStart;
+
+    public void TriggerPlayerTurnStart(Unit player)
+    {
+        OnPlayerTurnStart?.Invoke(player);
+    }
+    #endregion
+
     #region Unit / Character
     public enum Positions { Front = 0, Middle = 1, Back = 2 }
 
@@ -70,6 +80,8 @@ public class TurnOrder : MonoBehaviour
 
     #region FSM
     private CoreGameplayLoop currentState;
+    public CoreGameplayLoop CurrentState => currentState;
+
     #endregion
 
     #region Start / Update
@@ -123,6 +135,32 @@ public class TurnOrder : MonoBehaviour
         string display = string.Join(" -> ",
             initiativeOrderList.Select(u => u.Stats.charName + (u.IsDead() ? "(Dead)" : "")));
         Debug.Log(display);
+    }
+
+    private int currentPlayerIndex = -1; // tracks which player's turn it is
+
+    public void NextAlivePlayerTurn()
+    {
+        if (players.All(p => p.IsDead()))
+            return; // no alive players
+
+        int totalPlayers = initiativeOrderList.Count;
+        int iterations = 0;
+
+        do
+        {
+            currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
+            iterations++;
+
+            var candidate = initiativeOrderList[currentPlayerIndex];
+            // Only consider alive players
+            if (candidate.IsPlayer && !candidate.IsDead())
+            {
+                OnPlayerTurnStart?.Invoke(candidate);
+                return;
+            }
+
+        } while (iterations <= totalPlayers); // safety: avoid infinite loops
     }
     #endregion
 }

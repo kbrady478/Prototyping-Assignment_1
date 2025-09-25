@@ -28,7 +28,7 @@ public class EnemyChoiceState : CoreGameplayLoop
             Debug.Log(enemy.Stats.charName + " will use " + chosenSkill.skillName);
         }
 
-        CoreGameState.ChangeState(new ActionPhaseState(CoreGameState));
+        CoreGameState.ChangeState(new PlayerChoiceState(CoreGameState));
     }
 
     public override void Update() { }
