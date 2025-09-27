@@ -18,9 +18,6 @@ public class ActionPhaseState : CoreGameplayLoop
 
     private IEnumerator ActionPhaseRoutine()
     {
-        // Update initiative order
-        yield return CoreGameState.StartCoroutine(CoreGameState.PreviewTurnRoutine());
-
         Debug.Log("=== Action phase ===");
         yield return new WaitForSeconds(1f);
 
@@ -30,12 +27,11 @@ public class ActionPhaseState : CoreGameplayLoop
 
             if (unit.IsPlayer)
             {
-                yield return CoreGameState.StartCoroutine(CoreGameState.NextAlivePlayerTurn());
-                while (CoreGameState.playerActionsQueue.Count == 0)
-                    yield return null;
-
-                yield return ResolveQueue(CoreGameState.playerActionsQueue, CoreGameState.enemies, CoreGameState.players);
-                CoreGameState.playerActionsQueue.Clear();
+                if (CoreGameState.playerActionsQueue.Count > 0)
+                {
+                    yield return ResolveQueue(CoreGameState.playerActionsQueue, CoreGameState.enemies, CoreGameState.players);
+                    CoreGameState.playerActionsQueue.Clear();
+                }
             }
             else
             {
@@ -50,6 +46,7 @@ public class ActionPhaseState : CoreGameplayLoop
 
             yield return new WaitForSeconds(1f);
         }
+
         CoreGameState.ResolvePositionConflicts();
 
         // Display Status Before Next Round Begins
@@ -74,6 +71,7 @@ public class ActionPhaseState : CoreGameplayLoop
 
 
 
+
     private IEnumerator ResolveQueue(Queue<TurnOrder.PlayerActionType> queue, List<TurnOrder.Unit> targets, List<TurnOrder.Unit> allUnits)
     {
         foreach (var action in queue)
@@ -82,24 +80,33 @@ public class ActionPhaseState : CoreGameplayLoop
             if (unit == null || unit.IsDead() || action.ChosenAbility == null)
                 continue;
 
-            // Move self
-            int newIndex = (int)unit.CurrentPosition + action.ChosenAbility.MoveSelf;
-            newIndex = Mathf.Clamp(newIndex, 0, 2);
-            unit.CurrentPosition = (TurnOrder.Positions)newIndex;
-
-            // Resolve conflicts
-            unit.CurrentPosition = CoreGameState.ResolveOccupiedPosition(unit);
-
             if (action.ChosenAbility.MoveSelf != 0)
                 Debug.Log(unit.Stats.charName + " moves to " + unit.CurrentPosition);
 
             yield return new WaitForSeconds(1.5f);
 
+
+            // Ability Check
             foreach (var targetPos in action.ChosenAbility.targetPositions)
             {
-                var unitsInPos = targets.Where(u => u.CurrentPosition == targetPos && !u.IsDead()).ToList();
-                foreach (var target in unitsInPos)
-                {
+                // Special case: Mage's Magic Missile
+                List<TurnOrder.Unit> unitsInPos;
+                    if (unit.IsPlayer && action.ChosenAbility.skillName.ToLower() == "magic missile")
+                    {
+                        // Target enemies at the same relative position as the mage
+                        unitsInPos = targets
+                            .Where(u => u.CurrentPosition == unit.CurrentPosition && !u.IsDead())
+                            .ToList();
+                    }
+                    else
+                    {
+                        // Default targeting
+                        unitsInPos = targets.Where(u => u.CurrentPosition == targetPos && !u.IsDead()).ToList();
+                    }
+
+
+                    foreach (var target in unitsInPos)
+                    {
                     bool hit = Random.value <= action.ChosenAbility.hitChance;
                     if (!hit)
                     {
@@ -110,10 +117,32 @@ public class ActionPhaseState : CoreGameplayLoop
                         // Handle heal, buff, damage, parry, guard etc.
                         if (action.ChosenAbility.isHeal)
                         {
-                            target.CurrentVigor += action.ChosenAbility.damage;
-                            Debug.Log(unit.Stats.charName + " heals " + target.Stats.charName + " for " + action.ChosenAbility.damage);
+                            if (unit.IsPlayer)
+                            {
+                                // Player heal: group heal
+                                int healAmount = unit.CurrentPosition == TurnOrder.Positions.Back ? 20 : 10;
+                                foreach (var ally in CoreGameState.players.Where(p => !p.IsDead()))
+                                {
+                                    ally.CurrentVigor += healAmount;
+                                    
+                                    // Makes sure you can't abuse overhealing
+                                    ally.CurrentVigor = Mathf.Min(ally.CurrentVigor, ally.Stats.Vigor);
+                                    Debug.Log(unit.Stats.charName + " heals " + ally.Stats.charName + " for " + healAmount);
+                                }
+                            }
+                            else
+                            {
+                                // Enemy heal: only self
+                                target.CurrentVigor += action.ChosenAbility.damage;
+
+                                // Makes sure you can't abuse overhealing
+                                target.CurrentVigor = Mathf.Min(target.CurrentVigor, target.Stats.Vigor);
+                                Debug.Log(unit.Stats.charName + " heals themselves for " + action.ChosenAbility.damage);
+                            }
                         }
-                        else if (action.ChosenAbility.isBuff)
+
+                        // Status
+                        else if (action.ChosenAbility.isStatus)
                         {
                             if (action.ChosenAbility.skillName.ToLower().Contains("parry"))
                             {
@@ -131,14 +160,14 @@ public class ActionPhaseState : CoreGameplayLoop
                             // Handle damage, guard, parry
                             if (target.HasGuard)
                             {
-                                int dmg = Mathf.FloorToInt(action.ChosenAbility.damage * 0.5f);
+                                int dmg = Mathf.RoundToInt(action.ChosenAbility.damage * 0.5f); // Halves damage recieved
                                 target.CurrentVigor -= dmg;
                                 target.HasGuard = false;
                                 Debug.Log(target.Stats.charName + " guards! Damage reduced to " + dmg);
                             }
                             else if (target.HasParry)
                             {
-                                int refl = Mathf.FloorToInt(action.ChosenAbility.damage * 0.5f);
+                                int refl = Mathf.RoundToInt(action.ChosenAbility.damage * 0.5f); // Halves damage atk
                                 unit.TakeDamage(refl);
                                 target.HasParry = false;
                                 Debug.Log(target.Stats.charName + " parried! Reflected " + refl + " damage to " + unit.Stats.charName);
@@ -151,6 +180,15 @@ public class ActionPhaseState : CoreGameplayLoop
                         }
                     }
 
+                    // -----------  Movement  ------------
+                    // Move self
+                    int newIndex = (int)unit.CurrentPosition + action.ChosenAbility.MoveSelf;
+                    newIndex = Mathf.Clamp(newIndex, 0, 2);
+                    unit.CurrentPosition = (TurnOrder.Positions)newIndex;
+
+                    // Resolve conflicts
+                    unit.CurrentPosition = CoreGameState.ResolveOccupiedPosition(unit);
+
                     // Move target if MoveTarget != 0
                     int targetIndex = (int)target.CurrentPosition + action.ChosenAbility.MoveTarget;
                     targetIndex = Mathf.Clamp(targetIndex, 0, 2);
@@ -161,13 +199,13 @@ public class ActionPhaseState : CoreGameplayLoop
 
                     if (action.ChosenAbility.MoveTarget != 0)
                         Debug.Log(target.Stats.charName + " is moved to " + target.CurrentPosition);
-
+                    // -----------  Movement  ------------
 
                     yield return new WaitForSeconds(1.5f);
                 }
             }
-
         }
     }
-    
+
+
 }

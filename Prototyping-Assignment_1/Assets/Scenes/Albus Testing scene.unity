@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &18463364 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3457934022776124701, guid: bad36b8db9ad4239db41e5ac59c2f782, type: 3}
+  m_PrefabInstance: {fileID: 7525829060573862138}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!114 &277874820 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6715387533098954747, guid: bad36b8db9ad4239db41e5ac59c2f782, type: 3}
@@ -161,6 +172,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &422157082 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5581341560383747644, guid: bad36b8db9ad4239db41e5ac59c2f782, type: 3}
+  m_PrefabInstance: {fileID: 7525829060573862138}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!114 &427008244 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3192724580327289471, guid: bad36b8db9ad4239db41e5ac59c2f782, type: 3}
@@ -478,6 +500,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1147806891 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8156545609406264908, guid: bad36b8db9ad4239db41e5ac59c2f782, type: 3}
+  m_PrefabInstance: {fileID: 7525829060573862138}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &1179461725
 GameObject:
   m_ObjectHideFlags: 0
@@ -765,6 +798,18 @@ PrefabInstance:
       propertyPath: turnOrder
       value: 
       objectReference: {fileID: 1179461726}
+    - target: {fileID: 1179357244259479757, guid: 24ef44896b983f4e58f4373679d79bd2, type: 3}
+      propertyPath: skill1Text
+      value: 
+      objectReference: {fileID: 18463364}
+    - target: {fileID: 1179357244259479757, guid: 24ef44896b983f4e58f4373679d79bd2, type: 3}
+      propertyPath: skill2Text
+      value: 
+      objectReference: {fileID: 1147806891}
+    - target: {fileID: 1179357244259479757, guid: 24ef44896b983f4e58f4373679d79bd2, type: 3}
+      propertyPath: skill3Text
+      value: 
+      objectReference: {fileID: 422157082}
     - target: {fileID: 1179357244259479757, guid: 24ef44896b983f4e58f4373679d79bd2, type: 3}
       propertyPath: skill1Button
       value: 

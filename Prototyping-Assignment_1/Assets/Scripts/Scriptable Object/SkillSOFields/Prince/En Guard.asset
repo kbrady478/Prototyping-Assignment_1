@@ -15,7 +15,7 @@ MonoBehaviour:
   skillName: En Guard
   damage: 0
   isHeal: 0
-  isBuff: 1
+  isStatus: 1
   hitChance: 1
   targetPositions: 02000000
   MoveSelf: 0

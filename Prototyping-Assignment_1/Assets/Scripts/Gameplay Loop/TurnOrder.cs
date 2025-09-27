@@ -196,37 +196,11 @@ public class TurnOrder : MonoBehaviour
 
     #endregion
 
-    public GameObject UserPrefabText;
-    public Transform UnitPanel;
-    
+    #region Positional/Status Checks
+
     public IEnumerator DisplayAllUnitStatus(float displayTime = 2f)
     {
        Debug.Log("===== Unit Status =====");
-        /* 
-        foreach (Transform UserPrefabText in UnitPanel)
-        {
-            Destroy(UserPrefabText.gameObject);
-        }
-        foreach (var unit in players.Concat(enemies))
-        {
-            Debug.Log("Working");
-            
-            var item = Instantiate(UserPrefabText, UnitPanel);
-            item.SetActive(true);
-            
-            var nameText = item.GetComponent<TextMeshProUGUI>();
-            var hpTxt = item.GetComponent<TextMeshProUGUI>(); 
-            
-            nameText.text = unit.Stats.charName;
-            hpTxt.text = "HP:" + unit.CurrentVigor;
-            
-           
-        }
-*/
-    
-        
-        
-        
         
         foreach (var unit in initiativeOrderList)
         {
@@ -241,6 +215,12 @@ public class TurnOrder : MonoBehaviour
 
         yield return new WaitForSeconds(displayTime); 
     }
+
+    public bool HasPlayerChosen(Unit player)
+    {
+        return playerActionsQueue.Any(action => action.User == player);
+    }
+
 
     public void ResolvePositionConflicts()
     {
@@ -305,5 +285,5 @@ public class TurnOrder : MonoBehaviour
 
         return original;
     }
-
+    #endregion
 }

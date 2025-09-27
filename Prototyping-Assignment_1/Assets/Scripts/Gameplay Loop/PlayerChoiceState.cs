@@ -23,14 +23,14 @@ public class PlayerChoiceState : CoreGameplayLoop
         {
             yield return CoreGameState.StartCoroutine(CoreGameState.NextAlivePlayerTurn());
 
-            // Wait until the player chooses an action
-            while (CoreGameState.playerActionsQueue.Count == 0)
+            // Wait until THIS player chooses an action
+            while (!CoreGameState.HasPlayerChosen(player))
                 yield return null;
 
             yield return new WaitForSeconds(0.5f);
         }
 
-        // After all players queued actions, move to action phase
+        // After all players chose a skill go to action phase
         CoreGameState.ChangeState(new ActionPhaseState(CoreGameState));
     }
 

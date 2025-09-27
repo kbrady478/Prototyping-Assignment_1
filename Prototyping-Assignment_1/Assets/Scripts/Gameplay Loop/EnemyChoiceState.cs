@@ -35,7 +35,7 @@ public class EnemyChoiceState : CoreGameplayLoop
             yield return new WaitForSeconds(1f); // pacing per enemy decision
         }
 
-        // After all enemies have queued actions, go to action phase
-        CoreGameState.ChangeState(new ActionPhaseState(CoreGameState));
+        // After all enemies have queued actions, go to player choice state
+        CoreGameState.ChangeState(new PlayerChoiceState(CoreGameState));
     }
 }

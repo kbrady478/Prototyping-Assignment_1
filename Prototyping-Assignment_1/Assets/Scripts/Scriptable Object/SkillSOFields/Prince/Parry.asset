@@ -15,7 +15,7 @@ MonoBehaviour:
   skillName: Parry
   damage: 0
   isHeal: 0
-  isBuff: 1
+  isStatus: 1
   hitChance: 0.8
   targetPositions: 
   MoveSelf: 1
