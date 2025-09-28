@@ -9,6 +9,9 @@ using UnityEngine;
 public class TurnOrder : MonoBehaviour
 {
     #region UI
+    public MovingPositions movingPositions;
+
+
     public delegate void PlayerTurnStartHandler(Unit player);
     public event PlayerTurnStartHandler OnPlayerTurnStart;
 
@@ -29,9 +32,11 @@ public class TurnOrder : MonoBehaviour
         public bool IsPlayer;
         public int Initiative;
 
-        // For defensive skills
+        // For Parry/Guard skills
         public bool HasParry = false;
         public bool HasGuard = false;
+
+        public Transform visualTransform;
 
         public Unit(CharactersStats stats, Positions pos, bool isPlayer)
         {
@@ -88,6 +93,8 @@ public class TurnOrder : MonoBehaviour
     #endregion
 
     #region Start / Update
+    [SerializeField] private GameObject healthBarPrefab; 
+
     private void Start()
     {
         // Player Side
@@ -100,11 +107,30 @@ public class TurnOrder : MonoBehaviour
         enemies.Add(new Unit(Goblin2, Positions.Middle, false));
         enemies.Add(new Unit(Goblin3, Positions.Back, false));
 
+        for (int i = 0; i < players.Count; i++)
+            players[i].visualTransform = movingPositions.playerObjects[i].transform;
+
+        for (int i = 0; i < enemies.Count; i++)
+            enemies[i].visualTransform = movingPositions.enemyObjects[i].transform;
+
+        // Spawn health bars for all units
+        foreach (var unit in players.Concat(enemies))
+        {
+            GameObject hbGO = Instantiate(healthBarPrefab);
+            HealthBar hb = hbGO.GetComponent<HealthBar>();
+            hb.unit = unit;
+
+            // Place initially above the character
+            if (unit.visualTransform != null)
+                hbGO.transform.position = unit.visualTransform.position + Vector3.up * 2f;
+        }
+
         StartCoroutine(PreviewTurnRoutine());
 
         currentState = new EnemyChoiceState(this);
         currentState.Enter();
     }
+
 
     public void Update() => currentState.Update();
     #endregion
@@ -219,71 +245,6 @@ public class TurnOrder : MonoBehaviour
     public bool HasPlayerChosen(Unit player)
     {
         return playerActionsQueue.Any(action => action.User == player);
-    }
-
-
-    public void ResolvePositionConflicts()
-    {
-        var groups = initiativeOrderList
-            .Where(u => !u.IsDead())
-            .GroupBy(u => u.CurrentPosition);
-
-        foreach (var group in groups)
-        {
-            var units = group.ToList();
-            if (units.Count <= 1) continue; // no conflict
-
-            Debug.Log($"Conflict at {group.Key}: {string.Join(", ", units.Select(u => u.Stats.charName))}");
-
-            for (int i = 1; i < units.Count; i++)
-            {
-                var unit = units[i];
-                TurnOrder.Positions newPos = FindNearestFreePosition(unit.CurrentPosition);
-                Debug.Log(unit.Stats.charName + " moves to " + newPos + " to resolve conflict");
-                unit.CurrentPosition = newPos;
-            }
-        }
-    }
-
-    public Positions ResolveOccupiedPosition(Unit unit)
-    {
-        if (!initiativeOrderList.Any(u => u != unit && !u.IsDead() && u.CurrentPosition == unit.CurrentPosition))
-            return unit.CurrentPosition; // no conflict
-
-        // Try nearest positions
-        for (int offset = 1; offset <= 2; offset++)
-        {
-            int forward = (int)unit.CurrentPosition + offset;
-            int backward = (int)unit.CurrentPosition - offset;
-
-            if (forward <= 2 && !initiativeOrderList.Any(u => !u.IsDead() && u.CurrentPosition == (Positions)forward))
-                return (Positions)forward;
-
-            if (backward >= 0 && !initiativeOrderList.Any(u => !u.IsDead() && u.CurrentPosition == (Positions)backward))
-                return (Positions)backward;
-        }
-
-        // fallback, stay in original
-        return unit.CurrentPosition;
-    }
-
-
-    private Positions FindNearestFreePosition(Positions original)
-    {
-        // Positions are 0=Front, 1=Middle, 2=Back
-        for (int offset = 1; offset <= 2; offset++)
-        {
-            int forward = (int)original + offset;
-            int backward = (int)original - offset;
-
-            if (forward <= 2 && !initiativeOrderList.Any(u => !u.IsDead() && u.CurrentPosition == (Positions)forward))
-                return (Positions)forward;
-
-            if (backward >= 0 && !initiativeOrderList.Any(u => !u.IsDead() && u.CurrentPosition == (Positions)backward))
-                return (Positions)backward;
-        }
-
-        return original;
     }
     #endregion
 }

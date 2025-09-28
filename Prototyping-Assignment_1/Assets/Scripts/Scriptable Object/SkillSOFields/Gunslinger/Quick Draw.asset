@@ -15,8 +15,8 @@ MonoBehaviour:
   skillName: Quick Draw
   damage: 30
   isHeal: 0
-  isBuff: 0
+  isStatus: 0
   hitChance: 1
   targetPositions: 0000000001000000
-  MoveSelf: 0
+  MoveSelf: -1
   MoveTarget: 0

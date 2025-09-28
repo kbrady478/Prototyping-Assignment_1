@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; 
+using TMPro;
 
 public class UiButton : MonoBehaviour
 {
@@ -18,8 +18,6 @@ public class UiButton : MonoBehaviour
     private void OnEnable()
     {
         turnOrder.OnPlayerTurnStart += OnPlayerTurnStart;
-
-        // Hide buttons at the start
         SetButtonsActive(false);
     }
 
@@ -34,18 +32,13 @@ public class UiButton : MonoBehaviour
 
         if (player.IsDead())
         {
-            // Skip dead player and go to next alive player
-            turnOrder.NextAlivePlayerTurn();
+            turnOrder.StartCoroutine(turnOrder.NextAlivePlayerTurn());
             return;
         }
 
         SetButtonsActive(true);
-
         RewriteButton(player);
 
-        Debug.Log("Player turn start: " + player.Stats.charName);
-
-        // Assign button actions for current player
         skill1Button.onClick.RemoveAllListeners();
         skill2Button.onClick.RemoveAllListeners();
         skill3Button.onClick.RemoveAllListeners();
@@ -64,41 +57,21 @@ public class UiButton : MonoBehaviour
     {
         if (currentPlayer == null || currentPlayer.IsDead()) return;
 
-        // Tell PlayerChoiceState that this player chose a skill
         var playerChoiceState = turnOrder.CurrentState as PlayerChoiceState;
         if (playerChoiceState != null)
-        {
             playerChoiceState.PlayerUseSkill(currentPlayer, chosenSkill);
-        }
         else
-        {
             turnOrder.playerActionsQueue.Enqueue(new TurnOrder.PlayerActionType(currentPlayer, chosenSkill));
-        }
 
-        Debug.Log(currentPlayer.Stats.charName + " chose " + chosenSkill.skillName);
-
-        // Disable button
         SetButtonsActive(false);
-
     }
-
 
     private void RewriteButton(TurnOrder.Unit player)
     {
-        
-        skill1Text.text = "-";
-        skill2Text.text = "-";
-        skill3Text.text = "-";
-        
-        // Checks what skills is equipped on the character
-        if (player.Stats.skills.Length > 0)
-            skill1Text.text = player.Stats.skills[0].skillName;
-
-        if (player.Stats.skills.Length > 1)
-            skill2Text.text = player.Stats.skills[1].skillName;
-
-        if (player.Stats.skills.Length > 2)
-            skill3Text.text = player.Stats.skills[2].skillName;
+        // Assign TMP text safely in main thread
+        skill1Text.text = player.Stats.skills.Length > 0 ? player.Stats.skills[0].skillName : "...";
+        skill2Text.text = player.Stats.skills.Length > 1 ? player.Stats.skills[1].skillName : "...";
+        skill3Text.text = player.Stats.skills.Length > 2 ? player.Stats.skills[2].skillName : "...";
     }
 
     private void SetButtonsActive(bool state)

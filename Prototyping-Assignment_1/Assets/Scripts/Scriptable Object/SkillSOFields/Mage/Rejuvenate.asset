@@ -15,8 +15,8 @@ MonoBehaviour:
   skillName: Rejuvenate
   damage: 0
   isHeal: 1
-  isBuff: 0
+  isStatus: 0
   hitChance: 0.8
-  targetPositions: 000000000100000002000000
+  targetPositions: 
   MoveSelf: 0
   MoveTarget: 0
