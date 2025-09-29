@@ -110,6 +110,7 @@ public class TurnOrder : MonoBehaviour
         // Gets the Positional Transforms
         for (int i = 0; i < players.Count; i++)
             players[i].visualTransform = movingPositions.playerObjects[i].transform;
+        
 
         for (int i = 0; i < enemies.Count; i++)
             enemies[i].visualTransform = movingPositions.enemyObjects[i].transform;

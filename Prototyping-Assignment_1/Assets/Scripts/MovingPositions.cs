@@ -11,11 +11,13 @@ public class MovingPositions : MonoBehaviour
     public void MovePlayer(int playerIndex, int newPositionIndex)
     {
         playerObjects[playerIndex].transform.position = playerPositions[newPositionIndex].position;
+        
     }
 
     public void MoveEnemy(int enemyIndex, int newPositionIndex)
     {
         enemyObjects[enemyIndex].transform.position = enemyPositions[newPositionIndex].position;
+        
     }
 
     private void Start()

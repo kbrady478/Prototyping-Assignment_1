@@ -99,6 +99,7 @@ public class ActionPhaseState : CoreGameplayLoop
             {
                 int newUnitIndex = Mathf.Clamp((int)unit.CurrentPosition + action.ChosenAbility.MoveSelf, 0, 2);
                 Move(unit, allUnits, newUnitIndex);
+                
                 yield return new WaitForSeconds(1f);
             }
             // ------- Movement for acting unit -------

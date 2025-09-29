@@ -8,12 +8,6 @@ public class HealthBar : MonoBehaviour
 
     private Image fillImage;
 
-    private void Awake()
-    {
-        if (slider != null)
-            fillImage = slider.fillRect.GetComponent<Image>();
-    }
-
     public void Initialize(TurnOrder.Unit assignedUnit)
     {
         unit = assignedUnit;
@@ -22,7 +16,7 @@ public class HealthBar : MonoBehaviour
         {
             slider.maxValue = unit.Stats.Vigor;
             slider.value = unit.CurrentVigor;
-            UpdateColor();
+            //UpdateColor();
         }
     }
 
@@ -31,13 +25,8 @@ public class HealthBar : MonoBehaviour
         if (unit == null || slider == null) return;
 
         slider.value = unit.CurrentVigor;
-        UpdateColor();
+        //UpdateColor();
     }
 
-    private void UpdateColor()
-    {
-        if (fillImage == null || unit == null) return;
-
-        fillImage.color = unit.IsDead() ? Color.red : Color.green;
-    }
+    
 }
