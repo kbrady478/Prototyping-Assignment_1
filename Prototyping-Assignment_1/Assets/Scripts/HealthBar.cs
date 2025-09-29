@@ -3,8 +3,8 @@ using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
-    public Slider slider;           // reference set in inspector
-    public TurnOrder.Unit unit;     // reference assigned after unit creation
+    public Slider slider;
+    public TurnOrder.Unit unit;     
 
     private Image fillImage;
 

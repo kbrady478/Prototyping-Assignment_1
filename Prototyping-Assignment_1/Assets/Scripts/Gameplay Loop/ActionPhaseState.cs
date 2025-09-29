@@ -21,29 +21,40 @@ public class ActionPhaseState : CoreGameplayLoop
         Debug.Log("=== Action phase ===");
         yield return new WaitForSeconds(1f);
 
+        // Loop through units in initiative order
         foreach (var unit in CoreGameState.initiativeOrderList)
         {
             if (unit.IsDead()) continue;
 
             if (unit.IsPlayer)
             {
-                if (CoreGameState.playerActionsQueue.Count > 0)
+                // Check for queued player action
+                var playerAction = CoreGameState.playerActionsQueue.FirstOrDefault(a => a.User == unit);
+                if (playerAction != null)
                 {
-                    yield return ResolveQueue(CoreGameState.playerActionsQueue, CoreGameState.enemies, CoreGameState.players);
-                    CoreGameState.playerActionsQueue.Clear();
+                    Queue<TurnOrder.PlayerActionType> singleActionQueue = new Queue<TurnOrder.PlayerActionType>();
+                    singleActionQueue.Enqueue(playerAction);
+
+                    yield return ResolveQueue(singleActionQueue, CoreGameState.enemies, CoreGameState.players);
+                    CoreGameState.playerActionsQueue = new Queue<TurnOrder.PlayerActionType>(
+                        CoreGameState.playerActionsQueue.Where(a => a.User != unit)
+                    );
                 }
             }
             else
             {
-                // Choose random enemy skill
-                var enemySkills = unit.Stats.skills;
-                var chosenSkill = enemySkills[Random.Range(0, enemySkills.Length)];
-                CoreGameState.enemyActionsQueue.Enqueue(new TurnOrder.PlayerActionType(unit, chosenSkill));
-                Debug.Log(unit.Stats.charName + " will use " + chosenSkill.skillName);
+                // Check for queued enemy action
+                var enemyAction = CoreGameState.enemyActionsQueue.FirstOrDefault(a => a.User == unit);
+                if (enemyAction != null)
+                {
+                    Queue<TurnOrder.PlayerActionType> singleActionQueue = new Queue<TurnOrder.PlayerActionType>();
+                    singleActionQueue.Enqueue(enemyAction);
 
-                // Resolve enemy actions queue
-                yield return ResolveQueue(CoreGameState.enemyActionsQueue, CoreGameState.players, CoreGameState.enemies);
-                CoreGameState.enemyActionsQueue.Clear();
+                    yield return ResolveQueue(singleActionQueue, CoreGameState.players, CoreGameState.enemies);
+                    CoreGameState.enemyActionsQueue = new Queue<TurnOrder.PlayerActionType>(
+                        CoreGameState.enemyActionsQueue.Where(a => a.User != unit)
+                    );
+                }
             }
 
             yield return new WaitForSeconds(1f);
@@ -53,17 +64,20 @@ public class ActionPhaseState : CoreGameplayLoop
         yield return CoreGameState.StartCoroutine(CoreGameState.DisplayAllUnitStatus(2f));
 
         // End-of-round checks
-        if (CoreGameState.players.All(p => p.IsDead()))
+        if (CoreGameState.players.All(player => player.IsDead()))
         {
             Debug.Log("All players dead! Game Over!");
             yield break;
         }
 
-        if (CoreGameState.enemies.All(e => e.IsDead()))
+        if (CoreGameState.enemies.All(enemy => enemy.IsDead()))
         {
             Debug.Log("All enemies defeated! Players win!");
             yield break;
         }
+
+        // Roll new initiatives for the next round
+        yield return CoreGameState.StartCoroutine(CoreGameState.PreviewTurnRoutine());
 
         // Next turn
         CoreGameState.ChangeState(new EnemyChoiceState(CoreGameState));
@@ -197,7 +211,6 @@ public class ActionPhaseState : CoreGameplayLoop
         }
         else
         {
-            // No conflict, just move
             unit.CurrentPosition = (TurnOrder.Positions)newPos;
             if (unit.IsPlayer)
                 CoreGameState.movingPositions.MovePlayer(allUnits.IndexOf(unit), newPos);

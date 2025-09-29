@@ -21,21 +21,16 @@ public class EnemyChoiceState : CoreGameplayLoop
 
         CoreGameState.enemyActionsQueue.Clear();
 
-        // Only consider alive enemies
-        List<TurnOrder.Unit> aliveEnemies = CoreGameState.enemies.Where(e => !e.IsDead()).ToList();
+        List<TurnOrder.Unit> aliveEnemies = CoreGameState.enemies.Where(enemy => !enemy.IsDead()).ToList();
 
-        foreach (var enemy in aliveEnemies)
-        {
-            SkillData[] enemySkills = enemy.Stats.skills;
-            SkillData chosenSkill = enemySkills[Random.Range(0, enemySkills.Length)];
+        EnemyDisplay display = Object.FindFirstObjectByType<EnemyDisplay>();
+        if (display != null)
+            display.DisplayEnemyActions(aliveEnemies);
 
-            CoreGameState.enemyActionsQueue.Enqueue(new TurnOrder.PlayerActionType(enemy, chosenSkill));
-            Debug.Log(enemy.Stats.charName + " will use " + chosenSkill.skillName);
+        yield return new WaitForSeconds(aliveEnemies.Count * 1.1f);
 
-            yield return new WaitForSeconds(1f); // pacing per enemy decision
-        }
-
-        // After all enemies have queued actions, go to player choice state
+        // Change state after displaying choices
         CoreGameState.ChangeState(new PlayerChoiceState(CoreGameState));
     }
+
 }

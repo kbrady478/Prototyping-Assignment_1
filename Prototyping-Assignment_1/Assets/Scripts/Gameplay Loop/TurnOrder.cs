@@ -107,6 +107,7 @@ public class TurnOrder : MonoBehaviour
         enemies.Add(new Unit(Goblin2, Positions.Middle, false));
         enemies.Add(new Unit(Goblin3, Positions.Back, false));
 
+        // Gets the Positional Transforms
         for (int i = 0; i < players.Count; i++)
             players[i].visualTransform = movingPositions.playerObjects[i].transform;
 
@@ -116,13 +117,12 @@ public class TurnOrder : MonoBehaviour
         // Spawn health bars for all units
         foreach (var unit in players.Concat(enemies))
         {
-            GameObject hbGO = Instantiate(healthBarPrefab);
-            HealthBar hb = hbGO.GetComponent<HealthBar>();
+            GameObject healthUi = Instantiate(healthBarPrefab);
+            HealthBar hb = healthUi.GetComponent<HealthBar>();
             hb.unit = unit;
 
-            // Place initially above the character
             if (unit.visualTransform != null)
-                hbGO.transform.position = unit.visualTransform.position + Vector3.up * 2f;
+                healthUi.transform.position = unit.visualTransform.position + Vector3.up * 1f;
         }
 
         StartCoroutine(PreviewTurnRoutine());
@@ -145,6 +145,8 @@ public class TurnOrder : MonoBehaviour
     #endregion
 
     #region Preview Turn
+    public TurnDisplay turnDisplay; 
+
     public void PreviewTurn()
     {
         Debug.Log("===== Preview turn =====");
@@ -185,6 +187,10 @@ public class TurnOrder : MonoBehaviour
         string display = string.Join(" -> ",
             initiativeOrderList.Select(u => u.Stats.charName + (u.IsDead() ? "(Dead)" : "")));
         Debug.Log(display);
+
+        if (turnDisplay != null)
+            turnDisplay.UpdateTurnOrderDisplay();
+
 
         yield return null; // allow coroutine to yield
     }
