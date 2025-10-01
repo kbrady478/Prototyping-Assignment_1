@@ -21,7 +21,7 @@ public class ActionPhaseState : CoreGameplayLoop
         Debug.Log("=== Action phase ===");
         yield return new WaitForSeconds(1f);
 
-        // Loop through units in initiative order
+        // Loop through units in initiative order (who goes first)
         foreach (var unit in CoreGameState.initiativeOrderList)
         {
             if (unit.IsDead()) continue;
@@ -192,6 +192,7 @@ public class ActionPhaseState : CoreGameplayLoop
     private void Move(TurnOrder.Unit unit, List<TurnOrder.Unit> allUnits, int newPos)
     {
         var occupiedUnit = allUnits.FirstOrDefault(u => u != unit && u.CurrentPosition == (TurnOrder.Positions)newPos && !u.IsDead());
+
         if (occupiedUnit != null)
         {
             // Swap positions
@@ -200,24 +201,34 @@ public class ActionPhaseState : CoreGameplayLoop
             occupiedUnit.CurrentPosition = (TurnOrder.Positions)oldPos;
 
             if (unit.IsPlayer)
-                CoreGameState.movingPositions.MovePlayer(allUnits.IndexOf(unit), newPos);
+                CoreGameState.movingPositions.playerObjects[allUnits.IndexOf(unit)].transform.position =
+                    CoreGameState.movingPositions.playerPositions[newPos].position;
             else
-                CoreGameState.movingPositions.MoveEnemy(allUnits.IndexOf(unit), newPos);
+                CoreGameState.movingPositions.enemyObjects[allUnits.IndexOf(unit)].transform.position =
+                    CoreGameState.movingPositions.enemyPositions[newPos].position;
 
             if (occupiedUnit.IsPlayer)
-                CoreGameState.movingPositions.MovePlayer(allUnits.IndexOf(occupiedUnit), oldPos);
+                CoreGameState.movingPositions.playerObjects[allUnits.IndexOf(occupiedUnit)].transform.position =
+                    CoreGameState.movingPositions.playerPositions[oldPos].position;
             else
-                CoreGameState.movingPositions.MoveEnemy(allUnits.IndexOf(occupiedUnit), oldPos);
+                CoreGameState.movingPositions.enemyObjects[allUnits.IndexOf(occupiedUnit)].transform.position =
+                    CoreGameState.movingPositions.enemyPositions[oldPos].position;
         }
         else
         {
+            // Move to empty spot
             unit.CurrentPosition = (TurnOrder.Positions)newPos;
+
             if (unit.IsPlayer)
-                CoreGameState.movingPositions.MovePlayer(allUnits.IndexOf(unit), newPos);
+                CoreGameState.movingPositions.playerObjects[allUnits.IndexOf(unit)].transform.position =
+                    CoreGameState.movingPositions.playerPositions[newPos].position;
             else
-                CoreGameState.movingPositions.MoveEnemy(allUnits.IndexOf(unit), newPos);
+                CoreGameState.movingPositions.enemyObjects[allUnits.IndexOf(unit)].transform.position =
+                    CoreGameState.movingPositions.enemyPositions[newPos].position;
         }
 
         Debug.Log(unit.Stats.charName + " moved to " + unit.CurrentPosition);
     }
+
+
 }

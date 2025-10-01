@@ -68,7 +68,7 @@ public class UiButton : MonoBehaviour
 
     private void RewriteButton(TurnOrder.Unit player)
     {
-        // Assign TMP text safely in main thread
+        
         skill1Text.text = player.Stats.skills.Length > 0 ? player.Stats.skills[0].skillName : "...";
         skill2Text.text = player.Stats.skills.Length > 1 ? player.Stats.skills[1].skillName : "...";
         skill3Text.text = player.Stats.skills.Length > 2 ? player.Stats.skills[2].skillName : "...";
