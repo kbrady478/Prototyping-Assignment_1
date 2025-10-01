@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rejuvenate
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
   skillName: Rejuvenate
-  damage: 0
+  damage: 20
   isHeal: 1
   isStatus: 0
   hitChance: 0.8

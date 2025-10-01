@@ -201,22 +201,24 @@ public class TurnOrder : MonoBehaviour
 
     #region Player Turns
     
-    private int currentPlayerIndex = -1; 
+    public int currentPlayerIndex = -1;
 
     public IEnumerator NextAlivePlayerTurn()
     {
         if (players.All(p => p.IsDead()))
+        {
+            Debug.Log("All players dead! Game Over!");
             yield break;
+        }
 
         int totalPlayers = initiativeOrderList.Count;
-        int iterations = 0;
+        int startIndex = currentPlayerIndex;
 
         do
         {
             currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
-            iterations++;
-
             var candidate = initiativeOrderList[currentPlayerIndex];
+
             if (candidate.IsPlayer && !candidate.IsDead())
             {
                 Debug.Log("It's " + candidate.Stats.charName + "'s turn!");
@@ -225,8 +227,12 @@ public class TurnOrder : MonoBehaviour
                 yield break;
             }
 
-        } while (iterations <= totalPlayers);
+        } while (currentPlayerIndex != startIndex);
+
+        // Fallback in case something went wrong
+        Debug.LogWarning("No alive player found for next turn!");
     }
+
 
     #endregion
 

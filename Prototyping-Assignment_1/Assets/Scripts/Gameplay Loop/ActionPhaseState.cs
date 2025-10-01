@@ -21,18 +21,16 @@ public class ActionPhaseState : CoreGameplayLoop
         Debug.Log("=== Action phase ===");
         yield return new WaitForSeconds(1f);
 
-        // Loop through units in initiative order (who goes first)
+        // Loop through units in initiative order
         foreach (var unit in CoreGameState.initiativeOrderList)
         {
-            if (unit.IsDead()) continue;
-
+            // Do NOT skip dead units here — they still occupy positions
             if (unit.IsPlayer)
             {
-                // Check for queued player action
                 var playerAction = CoreGameState.playerActionsQueue.FirstOrDefault(a => a.User == unit);
                 if (playerAction != null)
                 {
-                    Queue<TurnOrder.PlayerActionType> singleActionQueue = new Queue<TurnOrder.PlayerActionType>();
+                    var singleActionQueue = new Queue<TurnOrder.PlayerActionType>();
                     singleActionQueue.Enqueue(playerAction);
 
                     yield return ResolveQueue(singleActionQueue, CoreGameState.enemies, CoreGameState.players);
@@ -43,11 +41,10 @@ public class ActionPhaseState : CoreGameplayLoop
             }
             else
             {
-                // Check for queued enemy action
                 var enemyAction = CoreGameState.enemyActionsQueue.FirstOrDefault(a => a.User == unit);
                 if (enemyAction != null)
                 {
-                    Queue<TurnOrder.PlayerActionType> singleActionQueue = new Queue<TurnOrder.PlayerActionType>();
+                    var singleActionQueue = new Queue<TurnOrder.PlayerActionType>();
                     singleActionQueue.Enqueue(enemyAction);
 
                     yield return ResolveQueue(singleActionQueue, CoreGameState.players, CoreGameState.enemies);
@@ -60,17 +57,22 @@ public class ActionPhaseState : CoreGameplayLoop
             yield return new WaitForSeconds(1f);
         }
 
-        // Display Status Before Next Round Begins
+        // Display status before next round
         yield return CoreGameState.StartCoroutine(CoreGameState.DisplayAllUnitStatus(2f));
 
+        // Reset for next round
+        CoreGameState.currentPlayerIndex = -1;
+        CoreGameState.playerActionsQueue.Clear();
+        CoreGameState.enemyActionsQueue.Clear();
+
         // End-of-round checks
-        if (CoreGameState.players.All(player => player.IsDead()))
+        if (CoreGameState.players.All(p => p.IsDead()))
         {
             Debug.Log("All players dead! Game Over!");
             yield break;
         }
 
-        if (CoreGameState.enemies.All(enemy => enemy.IsDead()))
+        if (CoreGameState.enemies.All(e => e.IsDead()))
         {
             Debug.Log("All enemies defeated! Players win!");
             yield break;
@@ -85,121 +87,117 @@ public class ActionPhaseState : CoreGameplayLoop
 
     private IEnumerator ResolveQueue(Queue<TurnOrder.PlayerActionType> queue, List<TurnOrder.Unit> targets, List<TurnOrder.Unit> allUnits)
     {
-        for (int i = 0; i < queue.Count; i++)
+        foreach (var action in queue)
         {
-            var action = queue.ElementAt(i);
             var unit = action.User;
-            if (unit == null || unit.IsDead() || action.ChosenAbility == null)
+            if (unit == null || action.ChosenAbility == null)
                 continue;
 
             yield return new WaitForSeconds(1f);
 
-            // ------- Movement for acting unit -------
+            // Move self
             if (action.ChosenAbility.MoveSelf != 0)
             {
                 int newUnitIndex = Mathf.Clamp((int)unit.CurrentPosition + action.ChosenAbility.MoveSelf, 0, 2);
                 Move(unit, allUnits, newUnitIndex);
                 yield return new WaitForSeconds(1f);
             }
-            // ------- Movement for acting unit -------
 
-            // Process each target position of the ability
+            // Healing
+            if (action.ChosenAbility.isHeal)
+            {
+                var team = unit.IsPlayer ? CoreGameState.players : CoreGameState.enemies;
+
+                foreach (var member in team)
+                {
+                    if (member.IsDead()) continue;
+
+                    int healAmount = (unit.CurrentPosition != TurnOrder.Positions.Back) ? 10 : action.ChosenAbility.damage;
+                    member.CurrentVigor = Mathf.Min(member.CurrentVigor + healAmount, member.Stats.Vigor);
+
+                    Debug.Log(unit.Stats.charName + " heals " + member.Stats.charName + " for " + healAmount);
+                }
+
+                continue; // skip damage/buff logic
+            }
+
+            // Process non-heal abilities
             foreach (var targetPos in action.ChosenAbility.targetPositions)
             {
-                var unitsInPos = targets.Where(u => u.CurrentPosition == targetPos && !u.IsDead()).ToList();
+                // Include dead units so positions are always occupied
+                var unitsInPos = targets.Where(u => u.CurrentPosition == targetPos).ToList();
 
                 foreach (var target in unitsInPos)
                 {
-                    bool hit = Random.value <= action.ChosenAbility.hitChance;
-                    if (!hit)
+                    if (!target.IsDead())
                     {
-                        Debug.Log(unit.Stats.charName + " missed " + target.Stats.charName);
-                        continue;
-                    }
-
-                    // Heal / Buff / Damage logic
-                    if (action.ChosenAbility.isHeal)
-                    {
-                        if (unit.IsPlayer)
+                        bool hit = Random.value <= action.ChosenAbility.hitChance;
+                        if (!hit)
                         {
-                            int healAmount = action.ChosenAbility.damage;
+                            Debug.Log(unit.Stats.charName + " missed " + target.Stats.charName);
+                            continue;
+                        }
 
-                            // Heal all alive players
-                            foreach (var p in CoreGameState.players.Where(p => !p.IsDead()))
+                        if (action.ChosenAbility.isStatus)
+                        {
+                            if (action.ChosenAbility.skillName.ToLower().Contains("parry"))
                             {
-                                p.CurrentVigor += healAmount;
-                                Debug.Log(unit.Stats.charName + " heals " + p.Stats.charName + " for " + healAmount);
+                                target.HasParry = true;
+                                Debug.Log(target.Stats.charName + " activates Parry!");
+                            }
+                            else if (action.ChosenAbility.skillName.ToLower().Contains("en guard"))
+                            {
+                                target.HasGuard = true;
+                                Debug.Log(target.Stats.charName + " is Guarding!");
                             }
                         }
                         else
                         {
-                            // Enemy only heals self
-                            target.CurrentVigor += action.ChosenAbility.damage;
-                            Debug.Log(unit.Stats.charName + " heals self for " + action.ChosenAbility.damage);
+                            if (target.HasGuard)
+                            {
+                                int dmg = Mathf.RoundToInt(action.ChosenAbility.damage * 0.5f);
+                                target.CurrentVigor -= dmg;
+                                target.HasGuard = false;
+                                Debug.Log(target.Stats.charName + " guards! Damage reduced to " + dmg);
+                            }
+                            else if (target.HasParry)
+                            {
+                                int refl = Mathf.RoundToInt(action.ChosenAbility.damage * 0.5f);
+                                unit.TakeDamage(refl);
+                                target.HasParry = false;
+                                Debug.Log(target.Stats.charName + " parried! Reflected " + refl + " damage to " + unit.Stats.charName);
+                            }
+                            else
+                            {
+                                target.TakeDamage(action.ChosenAbility.damage);
+                                Debug.Log(unit.Stats.charName + " hits " + target.Stats.charName + " with " + action.ChosenAbility.skillName);
+                            }
                         }
                     }
 
-                    else if (action.ChosenAbility.isStatus)
-                    {
-                        if (action.ChosenAbility.skillName.ToLower().Contains("parry"))
-                        {
-                            target.HasParry = true;
-                            Debug.Log(target.Stats.charName + " activates Parry!");
-                        }
-                        else if (action.ChosenAbility.skillName.ToLower().Contains("en guard"))
-                        {
-                            target.HasGuard = true;
-                            Debug.Log(target.Stats.charName + " is Guarding!");
-                        }
-                    }
-                    else
-                    {
-                        if (target.HasGuard)
-                        {
-                            int dmg = Mathf.RoundToInt(action.ChosenAbility.damage * 0.5f);
-                            target.CurrentVigor -= dmg;
-                            target.HasGuard = false;
-                            Debug.Log(target.Stats.charName + " guards! Damage reduced to " + dmg);
-                        }
-                        else if (target.HasParry)
-                        {
-                            int refl = Mathf.RoundToInt(action.ChosenAbility.damage * 0.5f);
-                            unit.TakeDamage(refl);
-                            target.HasParry = false;
-                            Debug.Log(target.Stats.charName + " parried! Reflected " + refl + " damage to " + unit.Stats.charName);
-                        }
-                        else
-                        {
-                            target.TakeDamage(action.ChosenAbility.damage);
-                            Debug.Log(unit.Stats.charName + " hits " + target.Stats.charName + " with " + action.ChosenAbility.skillName);
-                        }
-                    }
-
-                    // ------- Movement for target -------
+                    // Move target regardless of alive/dead
                     if (action.ChosenAbility.MoveTarget != 0)
                     {
                         int targetIndex = Mathf.Clamp((int)target.CurrentPosition + action.ChosenAbility.MoveTarget, 0, 2);
                         Move(target, targets, targetIndex);
                         yield return new WaitForSeconds(1f);
                     }
-                    // ------- Movement for target -------
                 }
             }
         }
     }
 
-    // Moving Around with 
     private void Move(TurnOrder.Unit unit, List<TurnOrder.Unit> allUnits, int newPos)
     {
-        var occupiedUnit = allUnits.FirstOrDefault(u => u != unit && u.CurrentPosition == (TurnOrder.Positions)newPos && !u.IsDead());
+        var occupiedUnit = allUnits.FirstOrDefault(u => u != unit && u.CurrentPosition == (TurnOrder.Positions)newPos);
 
         if (occupiedUnit != null)
         {
-            // Swap positions
             int oldPos = (int)unit.CurrentPosition;
             unit.CurrentPosition = (TurnOrder.Positions)newPos;
             occupiedUnit.CurrentPosition = (TurnOrder.Positions)oldPos;
 
+            // Update visuals
             if (unit.IsPlayer)
                 CoreGameState.movingPositions.playerObjects[allUnits.IndexOf(unit)].transform.position =
                     CoreGameState.movingPositions.playerPositions[newPos].position;
@@ -216,7 +214,6 @@ public class ActionPhaseState : CoreGameplayLoop
         }
         else
         {
-            // Move to empty spot
             unit.CurrentPosition = (TurnOrder.Positions)newPos;
 
             if (unit.IsPlayer)
@@ -229,6 +226,4 @@ public class ActionPhaseState : CoreGameplayLoop
 
         Debug.Log(unit.Stats.charName + " moved to " + unit.CurrentPosition);
     }
-
-
 }
