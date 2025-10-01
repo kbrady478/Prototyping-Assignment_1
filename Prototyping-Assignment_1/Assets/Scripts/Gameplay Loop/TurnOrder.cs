@@ -53,7 +53,6 @@ public class TurnOrder : MonoBehaviour
             if (IsDead()) return;
             int actualDamage = Mathf.Max(damage - Stats.Endurance, 0);
             CurrentVigor -= actualDamage;
-            Debug.Log(Stats.charName + " took " + actualDamage + " damage. Vigor=" + CurrentVigor);
         }
     }
     #endregion
@@ -93,7 +92,7 @@ public class TurnOrder : MonoBehaviour
     #endregion
 
     #region Start / Update
-    [SerializeField] private GameObject healthBarPrefab; 
+    [SerializeField] private GameObject healthBarPrefab;
 
     private void Start()
     {
@@ -107,7 +106,7 @@ public class TurnOrder : MonoBehaviour
         enemies.Add(new Unit(Goblin2, Positions.Middle, false));
         enemies.Add(new Unit(Goblin3, Positions.Back, false));
 
-        // Gets the Positional Transforms
+        
         for (int i = 0; i < players.Count; i++)
             players[i].visualTransform = movingPositions.playerObjects[i].transform;
         
@@ -115,22 +114,25 @@ public class TurnOrder : MonoBehaviour
         for (int i = 0; i < enemies.Count; i++)
             enemies[i].visualTransform = movingPositions.enemyObjects[i].transform;
 
-        // Spawn health bars for all units
+        // Spawn health bars 
         foreach (var unit in players.Concat(enemies))
         {
             GameObject healthUi = Instantiate(healthBarPrefab);
             HealthBar hb = healthUi.GetComponent<HealthBar>();
-            hb.unit = unit;
+            hb.Initialize(unit);
 
-            if (unit.visualTransform != null)
-                healthUi.transform.position = unit.visualTransform.position + Vector3.up * 1f;
+            healthUi.transform.SetParent(unit.visualTransform, false);
+            healthUi.transform.localPosition = new Vector3(0, 1f, 0); 
         }
+
+
 
         StartCoroutine(PreviewTurnRoutine());
 
         currentState = new EnemyChoiceState(this);
         currentState.Enter();
     }
+
 
 
     public void Update() => currentState.Update();
@@ -200,22 +202,24 @@ public class TurnOrder : MonoBehaviour
 
     #region Player Turns
     
-    private int currentPlayerIndex = -1; 
+    public int currentPlayerIndex = -1;
 
     public IEnumerator NextAlivePlayerTurn()
     {
         if (players.All(p => p.IsDead()))
+        {
+            Debug.Log("All players dead! Game Over!");
             yield break;
+        }
 
         int totalPlayers = initiativeOrderList.Count;
-        int iterations = 0;
+        int startIndex = currentPlayerIndex;
 
         do
         {
             currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
-            iterations++;
-
             var candidate = initiativeOrderList[currentPlayerIndex];
+
             if (candidate.IsPlayer && !candidate.IsDead())
             {
                 Debug.Log("It's " + candidate.Stats.charName + "'s turn!");
@@ -224,8 +228,12 @@ public class TurnOrder : MonoBehaviour
                 yield break;
             }
 
-        } while (iterations <= totalPlayers);
+        } while (currentPlayerIndex != startIndex);
+
+        // Fallback in case something went wrong
+        Debug.LogWarning("No alive player found for next turn!");
     }
+
 
     #endregion
 
